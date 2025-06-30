@@ -3,7 +3,7 @@ import time
 import getpass
 
 # Erlaubte Schlüsselwörter in Dateinamen
-ALLOWED_KEYWORDS = ["lucky_cat", "firmware", "CALIBRAT"]
+ALLOWED_KEYWORDS = ["lucky_cat","Lucky_Cat","LuckyCat","firmware", "CALIBRAT"]
 
 # Mount-Pfade (abhängig von Distribution & Desktop Environment ggf. anpassen)
 MOUNT_PATHS = [
@@ -46,7 +46,7 @@ def clean_usb_drive(drive_path):
         if not lucky_cat_found:
             print(f"Hinweis: Keine Datei mit 'lucky_cat' auf {drive_path} gefunden.")
 
-        confirm = input(f"Möchtest du das Laufwerk {drive_path} bereinigen? (j/N): ").strip().lower()
+        confirm = input(f"Möchtest du das Laufwerk {drive_path} bereinigen? (j/n): ").strip().lower()
         if confirm != 'j':
             print(f"Bereinigung für {drive_path} übersprungen.")
             return
@@ -76,7 +76,7 @@ def monitor_usb_drives():
             new_drives = current_drives - known_drives
 
             for drive in new_drives:
-                print(f"🆕 Neues USB-Laufwerk erkannt: {drive}")
+                print(f"Neues USB-Laufwerk erkannt: {drive}")
                 clean_usb_drive(drive)
 
             known_drives = current_drives
