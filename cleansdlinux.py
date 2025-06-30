@@ -1,88 +1,93 @@
+import subprocess
 import os
 import time
 import getpass
 
-# Allowed keywords in file names
-ALLOWED_KEYWORDS = ["lucky_cat","Lucky_Cat","LuckyCat","firmware", "CALIBRAT"]
+ALLOWED_KEYWORDS = ["lucky_cat", "Lucky_Cat", "LuckyCat", "firmware", "CALIBRAT"]
 
-# Mount
-MOUNT_PATHS = [
-    f"/media/{getpass.getuser()}",
-    f"/run/media/{getpass.getuser()}"
-]
+# Get all mounted and unmounted USB devices (vfat and FAT16 common for sticks)
+def get_usb_devices():
+    result = subprocess.run(["lsblk", "-o", "NAME,FSTYPE,LABEL,MOUNTPOINT,RM", "-J"],
+                            capture_output=True, text=True)
+    devices = []
+    if result.returncode == 0:
+        import json
+        data = json.loads(result.stdout)
+        for device in data["blockdevices"]:
+            if not device.get("rm", False):
+                continue  # only removable devices
+            if device.get("children"):
+                for part in device["children"]:
+                    fstype = part.get("fstype", "")
+                    if fstype.lower() in ["vfat", "fat16", "fat32"]:
+                        name = part["name"]
+                        mountpoint = part["mountpoint"]
+                        devices.append({
+                            "name": name,
+                            "mountpoint": mountpoint,
+                            "dev": f"/dev/{name}"
+                        })
+    return devices
 
-# Function to detect connected drives
-def get_connected_drives():
-    drives = []
-    for base_path in MOUNT_PATHS:
-        if os.path.exists(base_path):
-            for item in os.listdir(base_path):
-                full_path = os.path.join(base_path, item)
-                if os.path.ismount(full_path):
-                    drives.append(full_path)
-    return drives
 
-#Function to check if a drive has a medium inserted
-def is_drive_inserted(drive_path):
-    return os.path.ismount(drive_path)
-
-# Function to clean up unwanted files from the USB drive
-def clean_usb_drive(drive_path):
+# Try to mount if not already mounted
+def ensure_mounted(device):
+    if device["mountpoint"]:
+        return device["mountpoint"]
     try:
-        if not is_drive_inserted(drive_path):
-            return
-
-        lucky_cat_found = False
-        for item in os.listdir(drive_path):
-            item_path = os.path.join(drive_path, item)
-
-            if os.path.isdir(item_path):
-                continue
-
-            if "lucky_cat" in item:
-                lucky_cat_found = True
-                break
-
-        if not lucky_cat_found:
-            print(f"No file with 'lucky_cat' found on {drive_path} .")
-
-        confirm = input(f"do you want to clean {drive_path} ? (j/n): ").strip().lower()
-        if confirm != 'j':
-            print(f"skipping cleaning for {drive_path} ")
-            return
-
-        for item in os.listdir(drive_path):
-            item_path = os.path.join(drive_path, item)
-
-            if os.path.isdir(item_path):
-                continue
-
-            if not any(keyword in item for keyword in ALLOWED_KEYWORDS):
-                print(f"deleting: {item_path}")
-                os.remove(item_path)
-
+        result = subprocess.run(["udisksctl", "mount", "-b", device["dev"]],
+                                capture_output=True, text=True)
+        if result.returncode == 0:
+            for line in result.stdout.splitlines():
+                if "Mounted" in line and "at" in line:
+                    return line.split(" at ")[-1].strip().rstrip(".")
     except Exception as e:
-        print(f"error while cleaning {drive_path}: {e}")
+        print(f"Error mounting {device['dev']}: {e}")
+    return None
 
-# Main function to monitor and process USB drives
-def monitor_usb_drives():
-    print("monitoring drives... (Strg+C to end programm)")
-    known_drives = set(get_connected_drives())
+# Check and clean USB drive contents
+def clean_usb_drive(path):
+    if not os.path.isdir(path):
+        print(f"{path} is not accessible.")
+        return
 
+    lucky_cat_found = any("lucky_cat" in f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)))
+    if not lucky_cat_found:
+        print(f"No 'lucky_cat' files found in {path}.")
+
+    confirm = input(f"Do you want to clean {path}? (j/n): ").strip().lower()
+    if confirm != "j":
+        print("Skipping.")
+        return
+
+    for item in os.listdir(path):
+        item_path = os.path.join(path, item)
+        if os.path.isdir(item_path):
+            continue
+        if not any(keyword in item for keyword in ALLOWED_KEYWORDS):
+            try:
+                print(f"Deleting {item_path}")
+                os.remove(item_path)
+            except Exception as e:
+                print(f"Error deleting {item_path}: {e}")
+
+def monitor_usb():
+    print("Monitoring USB devices... (Strg+C to stop)")
+    seen = set()
     try:
         while True:
             time.sleep(1)
-            current_drives = set(get_connected_drives())
-            new_drives = current_drives - known_drives
-
-            for drive in new_drives:
-                print(f"new drive found: {drive}")
-                clean_usb_drive(drive)
-
-            known_drives = current_drives
-
+            devices = get_usb_devices()
+            for dev in devices:
+                if dev["dev"] in seen:
+                    continue
+                mountpoint = ensure_mounted(dev)
+                if mountpoint:
+                    print(f"New device mounted at: {mountpoint}")
+                    clean_usb_drive(mountpoint)
+                    seen.add(dev["dev"])
     except KeyboardInterrupt:
-        print(" stoped monitoring.")
+        print("\nStopped monitoring.")
 
 if __name__ == "__main__":
-    monitor_usb_drives()
+    monitor_usb()
