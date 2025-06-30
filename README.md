@@ -41,6 +41,7 @@ cd sdcard_cleaner
 python cleansd.py
 ```
 (cleansdlinux für linux)
+
 Das Programm überwacht angeschlossene USB-Laufwerke und fragt, ob ein gefundenes Laufwerk bereinigt werden soll. Es werden nur Dateien gelöscht, die **keines** der erlaubten Schlüsselwörter im Namen enthalten.
 
 ### 2. Grafische Benutzeroberfläche (GUI)
