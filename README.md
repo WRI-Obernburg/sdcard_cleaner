@@ -1,6 +1,6 @@
 # SDCard Cleaner
 
-**SDCard Cleaner** ist eine inhouse entwickelte Anwendung für die 3D-Druck-Workshops am Walter Reis Institut. Sie dient dazu, USB-Sticks und SD-Karten, die an 3D-Druckern verwendet werden, schnell und sicher von unerwünschten Dateien zu bereinigen – wichtige Dateien wie Druckmodelle und Firmware bleiben dabei erhalten.
+**SDCard Cleaner** ist eine entwickelte Anwendung für die 3D-Druck-Workshops am Walter Reis Institut. Sie dient dazu, USB-Sticks und SD-Karten, die an 3D-Druckern verwendet werden, schnell und sicher von unerwünschten Dateien zu bereinigen – wichtige Dateien wie Druckmodelle und Firmware bleiben dabei erhalten.
 
 ---
 
