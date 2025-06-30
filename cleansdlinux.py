@@ -5,7 +5,7 @@ import getpass
 # Allowed keywords in file names
 ALLOWED_KEYWORDS = ["lucky_cat","Lucky_Cat","LuckyCat","firmware", "CALIBRAT"]
 
-# Mount-Pfade
+# Mount
 MOUNT_PATHS = [
     f"/media/{getpass.getuser()}",
     f"/run/media/{getpass.getuser()}"
