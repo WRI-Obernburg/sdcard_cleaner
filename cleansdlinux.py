@@ -2,16 +2,16 @@ import os
 import time
 import getpass
 
-# Erlaubte Schlüsselwörter in Dateinamen
+# Allowed keywords in file names
 ALLOWED_KEYWORDS = ["lucky_cat","Lucky_Cat","LuckyCat","firmware", "CALIBRAT"]
 
-# Mount-Pfade (abhängig von Distribution & Desktop Environment ggf. anpassen)
+# Mount-Pfade
 MOUNT_PATHS = [
     f"/media/{getpass.getuser()}",
     f"/run/media/{getpass.getuser()}"
 ]
 
-# Funktion zur Erkennung von eingehängten USB-Laufwerken
+# Function to detect connected drives
 def get_connected_drives():
     drives = []
     for base_path in MOUNT_PATHS:
@@ -22,11 +22,11 @@ def get_connected_drives():
                     drives.append(full_path)
     return drives
 
-# Prüfen, ob ein Medium eingehängt ist (ein Mountpoint existiert)
+#Function to check if a drive has a medium inserted
 def is_drive_inserted(drive_path):
     return os.path.ismount(drive_path)
 
-# Funktion zur Säuberung eines USB-Laufwerks
+# Function to clean up unwanted files from the USB drive
 def clean_usb_drive(drive_path):
     try:
         if not is_drive_inserted(drive_path):
@@ -44,11 +44,11 @@ def clean_usb_drive(drive_path):
                 break
 
         if not lucky_cat_found:
-            print(f"Hinweis: Keine Datei mit 'lucky_cat' auf {drive_path} gefunden.")
+            print(f"No file with 'lucky_cat' found on {drive_path} .")
 
-        confirm = input(f"Möchtest du das Laufwerk {drive_path} bereinigen? (j/n): ").strip().lower()
+        confirm = input(f"do you want to clean {drive_path} ? (j/n): ").strip().lower()
         if confirm != 'j':
-            print(f"Bereinigung für {drive_path} übersprungen.")
+            print(f"skipping cleaning for {drive_path} ")
             return
 
         for item in os.listdir(drive_path):
@@ -58,15 +58,15 @@ def clean_usb_drive(drive_path):
                 continue
 
             if not any(keyword in item for keyword in ALLOWED_KEYWORDS):
-                print(f"Lösche: {item_path}")
+                print(f"deleting: {item_path}")
                 os.remove(item_path)
 
     except Exception as e:
-        print(f"Fehler beim Bereinigen von {drive_path}: {e}")
+        print(f"error while cleaning {drive_path}: {e}")
 
-# Hauptfunktion zum Überwachen von USB-Sticks
+# Main function to monitor and process USB drives
 def monitor_usb_drives():
-    print("Überwache USB-Laufwerke... (Strg+C zum Beenden)")
+    print("monitoring drives... (Strg+C to end programm)")
     known_drives = set(get_connected_drives())
 
     try:
@@ -76,13 +76,13 @@ def monitor_usb_drives():
             new_drives = current_drives - known_drives
 
             for drive in new_drives:
-                print(f"Neues USB-Laufwerk erkannt: {drive}")
+                print(f"new drive found: {drive}")
                 clean_usb_drive(drive)
 
             known_drives = current_drives
 
     except KeyboardInterrupt:
-        print("USB-Überwachung beendet.")
+        print(" stoped monitoring.")
 
 if __name__ == "__main__":
     monitor_usb_drives()
