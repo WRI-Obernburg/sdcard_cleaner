@@ -5,7 +5,7 @@ import getpass
 
 ALLOWED_KEYWORDS = ["lucky_cat", "Lucky_Cat", "LuckyCat", "firmware", "CALIBRAT"]
 
-# Get all mounted and unmounted USB devices (vfat and FAT16 common for sticks)
+# Get all mounted and unmounted USB devices
 def get_usb_devices():
     result = subprocess.run(["lsblk", "-o", "NAME,FSTYPE,LABEL,MOUNTPOINT,RM", "-J"],
                             capture_output=True, text=True)
