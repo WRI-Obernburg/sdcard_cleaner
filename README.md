@@ -1,6 +1,6 @@
 # SDCard Cleaner
 
-**SDCard Cleaner** ist eine inhouse entwickelte Anwendung für die 3D-Druck-Workshops am Walter Reis Institut. Sie dient dazu, USB-Sticks und SD-Karten, die an 3D-Druckern verwendet werden, schnell und sicher von unerwünschten Dateien zu bereinigen – wichtige Dateien wie Druckmodelle und Firmware bleiben dabei erhalten.
+**SDCard Cleaner** ist eine entwickelte Anwendung für die 3D-Druck-Workshops am Walter Reis Institut. Sie dient dazu, USB-Sticks und SD-Karten, die an 3D-Druckern verwendet werden, schnell und sicher von unerwünschten Dateien zu bereinigen – wichtige Dateien wie Druckmodelle und Firmware bleiben dabei erhalten.
 
 ---
 
@@ -35,10 +35,12 @@ Falls `tkinter` nicht installiert ist, installieren Sie es unter Windows über d
 ### 1. Kommandozeilen-Variante (CLI)
 
 Starten Sie das Tool mit:
-
 ```bash
+git clone https://github.com/xxxx/sdcard_cleaner
+cd sdcard_cleaner
 python cleansd.py
 ```
+(cleansdlinux für linux)
 
 Das Programm überwacht angeschlossene USB-Laufwerke und fragt, ob ein gefundenes Laufwerk bereinigt werden soll. Es werden nur Dateien gelöscht, die **keines** der erlaubten Schlüsselwörter im Namen enthalten.
 
@@ -78,7 +80,6 @@ Um eine eigenständige `.exe`-Datei zu erstellen (z.B. für die Nutzung ohne Pyt
 
 ## Hinweise
 
-- Das Tool ist **nur für Windows** geeignet (wegen `pywin32`).
 - Es werden keine Systemlaufwerke oder Netzlaufwerke bereinigt.
 - Die Anwendung ist speziell für die Anforderungen der 3D-Druck-Workshops am Walter Reis Institut entwickelt worden.
 
